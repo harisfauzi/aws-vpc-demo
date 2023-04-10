@@ -1,0 +1,3 @@
+---
+template:
+  path: ec2/vpc.yaml.j2
