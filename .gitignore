@@ -19,6 +19,7 @@ sceptre/values/*
 sceptre/templates/*
 !sceptre/templates/DO_NOT_DELETE
 !sceptre/templates/custom*
+!sceptre/templates/*.yaml
 sceptre/config/cwalarm/*
 !sceptre/config/cwalarm/DO_NOT_DELETE
 terraform/tffiles/.terraform/*

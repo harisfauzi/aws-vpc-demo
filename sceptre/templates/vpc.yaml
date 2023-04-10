@@ -1,0 +1,229 @@
+---
+Description: VPC for vpc-demo
+AWSTemplateFormatVersion: "2010-09-09"
+# Parameters:
+#   VpcCidrBlock:
+#     Type: String
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.254.0.0/20
+      EnableDnsHostnames: True
+      EnableDnsSupport: True
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: Demo01
+
+  RouteTablePublic:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
+        - Key: Name
+          Value: Demo01-RouteTable-Public
+
+  RTPublicDefaultRouteIPv4:
+    Type: AWS::EC2::Route
+    Properties: 
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId:
+        Ref: InternetGateway
+      RouteTableId:
+        Ref: RouteTablePublic
+
+  RouteTablePrivateA:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
+        - Key: Name
+          Value: Demo01-RouteTable-Private-A
+
+  RouteTablePrivateB:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
+        - Key: Name
+          Value: Demo01-RouteTable-Private-B
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Demo01
+
+  VPCGatewayAssociation:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId:
+        Ref: InternetGateway
+      VpcId:
+        Ref: VPC
+
+  NetworkAclPublicSubnet:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Demo01-NACL-Public
+      VpcId:
+        Ref: VPC
+
+  NetworkAclPrivateSubnet:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Demo01-NACL-Private
+      VpcId:
+        Ref: VPC
+
+  SubnetPublicA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-west-2a
+      CidrBlock:
+        Fn::Select:
+          - 0
+          - Fn::Cidr:
+              - Fn::GetAtt:
+                  - VPC
+                  - CidrBlock
+              - 4
+              - 8
+      MapPublicIpOnLaunch: True
+      Tags:
+        - Key: Name
+          Value: Demo01-Public-Subnet-A
+      VpcId:
+        Ref: VPC
+
+  SubnetPublicARTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId:
+        Ref: RouteTablePublic
+      SubnetId:
+        Ref: SubnetPublicA
+
+  SubnetPublicANACLAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties: 
+      NetworkAclId:
+        Ref: NetworkAclPublicSubnet
+      SubnetId:
+        Ref: SubnetPublicA
+
+  SubnetPublicB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-west-2b
+      CidrBlock:
+        Fn::Select:
+          - 1
+          - Fn::Cidr:
+              - Fn::GetAtt:
+                  - VPC
+                  - CidrBlock
+              - 4
+              - 8
+      MapPublicIpOnLaunch: True
+      Tags:
+        - Key: Name
+          Value: Demo01-Public-Subnet-B
+      VpcId:
+        Ref: VPC
+
+  SubnetPublicBRTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId:
+        Ref: RouteTablePublic
+      SubnetId:
+        Ref: SubnetPublicB
+
+  SubnetPublicBNACLAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties: 
+      NetworkAclId:
+        Ref: NetworkAclPublicSubnet
+      SubnetId:
+        Ref: SubnetPublicB
+
+  SubnetPrivateA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-west-2a
+      CidrBlock:
+        Fn::Select:
+          - 2
+          - Fn::Cidr:
+              - Fn::GetAtt:
+                  - VPC
+                  - CidrBlock
+              - 4
+              - 8
+      Tags:
+        - Key: Name
+          Value: Demo01-Private-Subnet-A
+      VpcId:
+        Ref: VPC
+
+  SubnetPrivateARTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId:
+        Ref: RouteTablePrivateA
+      SubnetId:
+        Ref: SubnetPrivateA
+
+  SubnetPrivateANACLAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties: 
+      NetworkAclId:
+        Ref: NetworkAclPublicSubnet
+      SubnetId:
+        Ref: SubnetPrivateA
+
+  SubnetPrivateB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-west-2b
+      CidrBlock:
+        Fn::Select:
+          - 3
+          - Fn::Cidr:
+              - Fn::GetAtt:
+                  - VPC
+                  - CidrBlock
+              - 4
+              - 8
+      Tags:
+        - Key: Name
+          Value: Demo01-Private-Subnet-B
+      VpcId:
+        Ref: VPC
+
+  SubnetPrivateBRTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId:
+        Ref: RouteTablePrivateB
+      SubnetId:
+        Ref: SubnetPrivateB
+
+  SubnetPrivateBNACLAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties: 
+      NetworkAclId:
+        Ref: NetworkAclPublicSubnet
+      SubnetId:
+        Ref: SubnetPrivateB
