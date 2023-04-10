@@ -1,0 +1,6 @@
+---
+template:
+  path: vpc-b.yaml
+
+parameters:
+  VpcCidrBlock: '10.254.32.0/20'

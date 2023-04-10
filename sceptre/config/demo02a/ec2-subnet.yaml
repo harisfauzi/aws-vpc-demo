@@ -8,7 +8,7 @@ sceptre_user_data:
   source_repo_branch: !environment_variable SOURCE_REPO_BRANCH
   subnets:
     - name: SubnetPublicA
-      cidr_block: "!Select [0, !Cidr [!ImportValue vpcdemo-demo02-ec2-vpc-VPC-CidrBlock,4,8]]"
+      cidr_block: "!Select [0, !Cidr [!ImportValue vpcdemo-{{pwd}}-ec2-vpc-VPC-CidrBlock,4,8]]"
       availability_zone: "{{stack_group_config.region}}a"
       tags:
         Name: {{part}}-Public-Subnet-A
@@ -17,7 +17,7 @@ sceptre_user_data:
       network_acl_id: !stack_output {{pwd}}/ec2-networkacl.yaml::NetworkAclPublicSubnet
       route_table_id: !stack_output {{pwd}}/ec2-route.yaml::RouteTablePublic
     - name: SubnetPublicB
-      cidr_block: "!Select [1, !Cidr [!ImportValue vpcdemo-demo02-ec2-vpc-VPC-CidrBlock,4,8]]"
+      cidr_block: "!Select [1, !Cidr [!ImportValue vpcdemo-{{pwd}}-ec2-vpc-VPC-CidrBlock,4,8]]"
       availability_zone: "{{stack_group_config.region}}b"
       tags:
         Name: {{part}}-Public-Subnet-B
@@ -26,7 +26,7 @@ sceptre_user_data:
       network_acl_id: !stack_output {{pwd}}/ec2-networkacl.yaml::NetworkAclPublicSubnet
       route_table_id: !stack_output {{pwd}}/ec2-route.yaml::RouteTablePublic
     - name: SubnetPrivateA
-      cidr_block: "!Select [2, !Cidr [!ImportValue vpcdemo-demo02-ec2-vpc-VPC-CidrBlock,4,8]]"
+      cidr_block: "!Select [2, !Cidr [!ImportValue vpcdemo-{{pwd}}-ec2-vpc-VPC-CidrBlock,4,8]]"
       availability_zone: "{{stack_group_config.region}}a"
       tags:
         Name: {{part}}-Public-Private-A
@@ -34,7 +34,7 @@ sceptre_user_data:
       network_acl_id: !stack_output {{pwd}}/ec2-networkacl.yaml::NetworkAclPrivateSubnet
       route_table_id: !stack_output {{pwd}}/ec2-route.yaml::RouteTablePrivateA
     - name: SubnetPrivateA
-      cidr_block: "!Select [3, !Cidr [!ImportValue vpcdemo-demo02-ec2-vpc-VPC-CidrBlock,4,8]]"
+      cidr_block: "!Select [3, !Cidr [!ImportValue vpcdemo-{{pwd}}-ec2-vpc-VPC-CidrBlock,4,8]]"
       availability_zone: "{{stack_group_config.region}}b"
       tags:
         Name: {{part}}-Public-Private-B

@@ -1,0 +1,19 @@
+{
+  "Accounts": [
+    {
+      "Id": "123456789012",
+      "Name": "aws-demo",
+      "Status": "ACTIVE"
+    },
+    {
+      "Id": "123456789013",
+      "Name": "aws-demo-staging",
+      "Status": "ACTIVE"
+    },
+    {
+      "Id": "123456789014",
+      "Name": "aws-demo-prod",
+      "Status": "ACTIVE"
+    }
+  ]
+}

@@ -1,15 +1,18 @@
 ---
 Description: VPC for vpc-demo
 AWSTemplateFormatVersion: "2010-09-09"
-# Parameters:
-#   VpcCidrBlock:
-#     Type: String
+
+Parameters:
+  VpcCidrBlock:
+    Type: String
+    Default: '10.253.0.0/20'
 
 Resources:
   VPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: 10.254.0.0/20
+      CidrBlock:
+        Ref: VpcCidrBlock
       EnableDnsHostnames: True
       EnableDnsSupport: True
       InstanceTenancy: default
