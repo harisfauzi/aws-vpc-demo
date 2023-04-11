@@ -186,7 +186,7 @@ Resources:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties: 
       NetworkAclId:
-        Ref: NetworkAclPublicSubnet
+        Ref: NetworkAclPrivateSubnet
       SubnetId:
         Ref: SubnetPrivateA
 
@@ -221,6 +221,6 @@ Resources:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties: 
       NetworkAclId:
-        Ref: NetworkAclPublicSubnet
+        Ref: NetworkAclPrivateSubnet
       SubnetId:
         Ref: SubnetPrivateB
