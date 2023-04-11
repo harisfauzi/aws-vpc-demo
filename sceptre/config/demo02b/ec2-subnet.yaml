@@ -10,8 +10,7 @@ sceptre_user_data:
     - name: SubnetPublicA
       cidr_block: "!Select [0, !Cidr [!ImportValue vpcdemo-{{pwd}}-ec2-vpc-VPC-CidrBlock,4,8]]"
       availability_zone: "{{stack_group_config.region}}a"
-      tags:
-        Name: {{part}}-Public-Subnet-A
+      tags: {{subnet_tags['public_a'][var.environment]}}
       vpc_id: !stack_output {{pwd}}/ec2-vpc.yaml::VPC
       map_public_ip_on_launch: True
       network_acl_id: !stack_output {{pwd}}/ec2-networkacl.yaml::NetworkAclPublicSubnet
@@ -19,8 +18,7 @@ sceptre_user_data:
     - name: SubnetPublicB
       cidr_block: "!Select [1, !Cidr [!ImportValue vpcdemo-{{pwd}}-ec2-vpc-VPC-CidrBlock,4,8]]"
       availability_zone: "{{stack_group_config.region}}b"
-      tags:
-        Name: {{part}}-Public-Subnet-B
+      tags: {{subnet_tags['public_b'][var.environment]}}
       vpc_id: !stack_output {{pwd}}/ec2-vpc.yaml::VPC
       map_public_ip_on_launch: True
       network_acl_id: !stack_output {{pwd}}/ec2-networkacl.yaml::NetworkAclPublicSubnet
@@ -28,16 +26,14 @@ sceptre_user_data:
     - name: SubnetPrivateA
       cidr_block: "!Select [2, !Cidr [!ImportValue vpcdemo-{{pwd}}-ec2-vpc-VPC-CidrBlock,4,8]]"
       availability_zone: "{{stack_group_config.region}}a"
-      tags:
-        Name: {{part}}-Public-Private-A
+      tags: {{subnet_tags['private_a'][var.environment]}}
       vpc_id: !stack_output {{pwd}}/ec2-vpc.yaml::VPC
       network_acl_id: !stack_output {{pwd}}/ec2-networkacl.yaml::NetworkAclPrivateSubnet
       route_table_id: !stack_output {{pwd}}/ec2-route.yaml::RouteTablePrivateA
-    - name: SubnetPrivateA
+    - name: SubnetPrivateB
       cidr_block: "!Select [3, !Cidr [!ImportValue vpcdemo-{{pwd}}-ec2-vpc-VPC-CidrBlock,4,8]]"
       availability_zone: "{{stack_group_config.region}}b"
-      tags:
-        Name: {{part}}-Public-Private-B
+      tags: {{subnet_tags['private_b'][var.environment]}}
       vpc_id: !stack_output {{pwd}}/ec2-vpc.yaml::VPC
       network_acl_id: !stack_output {{pwd}}/ec2-networkacl.yaml::NetworkAclPrivateSubnet
       route_table_id: !stack_output {{pwd}}/ec2-route.yaml::RouteTablePrivateB

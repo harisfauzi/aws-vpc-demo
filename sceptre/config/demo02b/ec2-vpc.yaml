@@ -8,7 +8,7 @@ sceptre_user_data:
   source_repo_branch: !environment_variable SOURCE_REPO_BRANCH
   vpcs:
     - name: VPC
-      cidr_block: '10.254.16.0/20'
+      cidr_block: "{{var.vpc_cidr_block}}"
       use_ipv6: False
       enable_dns_hostnames: True
       enable_dns_hostnames: True

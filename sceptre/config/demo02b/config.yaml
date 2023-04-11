@@ -1,3 +1,43 @@
 ---
 pwd: demo02b
-part: Demo02
+part: Demo02b
+
+subnet_tags_common:
+  staging: &staging_subnet_tags_common
+    SME: John Doe
+    BillingCode: Demo-Staging-0010
+    BusinessUnit: Demo Marketing
+  production: &production_subnet_tags_common
+    SME: John Doe
+    BillingCode: Demo-Production-1010
+    BusinessUnit: Demo Marketing
+
+subnet_tags:
+  public_a:
+    staging:
+      <<: *staging_subnet_tags_common
+      Name: Demo02b-Public-Subnet-A
+    production:
+      <<: *production_subnet_tags_common
+      Name: Demo02b-Public-Subnet-A
+  public_b:
+    staging:
+      <<: *staging_subnet_tags_common
+      Name: Demo02b-Public-Subnet-B
+    production:
+      <<: *production_subnet_tags_common
+      Name: Demo02b-Public-Subnet-B
+  private_a:
+    staging:
+      <<: *staging_subnet_tags_common
+      Name: Demo02b-Private-Subnet-A
+    production:
+      <<: *production_subnet_tags_common
+      Name: Demo02b-Private-Subnet-A
+  private_b:
+    staging:
+      <<: *staging_subnet_tags_common
+      Name: Demo02b-Private-Subnet-B
+    production:
+      <<: *production_subnet_tags_common
+      Name: Demo02b-Private-Subnet-B
