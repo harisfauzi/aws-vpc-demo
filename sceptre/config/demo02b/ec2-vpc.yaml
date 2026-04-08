@@ -5,12 +5,10 @@ template:
 sceptre_user_data:
   project_code: "{{stack_group_config.project_code}}"
   source_repo_url: "{{source_repo_url}}"
-  source_repo_branch: !environment_variable SOURCE_REPO_BRANCH
   vpcs:
     - name: VPC
       cidr_block: "{{var.vpc_cidr_block}}"
       use_ipv6: False
-      enable_dns_hostnames: True
       enable_dns_hostnames: True
       tags:
         Name: "{{part}}"
