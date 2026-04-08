@@ -1,0 +1,6 @@
+{
+  "*.{js,ts,tsx,json,yml,yaml}": "eslint",
+  "*.sh": "shellcheck",
+  "*.py": "pre-commit run --files ",
+  "*.md": "markdownlint-cli2"
+}
