@@ -5,12 +5,8 @@ lambda_*.yml
 tmp/*
 *.zip
 lambdas/
-packer.log
-org-policies/files/*
-!org-policies/files/DIRECTORY_RETAINER
-org-stacksets/files/*
-!org-stacksets/files/DO_NOT_DELETE_THIS_FILE
 .venv
+venv
 .vscode
 sceptre/generated-config/*
 !sceptre/generated-config/DO_NOT_DELETE
@@ -33,3 +29,5 @@ sceptre/lambda-functions/scaling_configuration/*
 !sceptre/lambda-functions/scaling_configuration/lambda_function.py
 !sceptre/lambda-functions/scaling_configuration/requirements.txt
 accounts.json
+node_modules
+yarn-err.log
