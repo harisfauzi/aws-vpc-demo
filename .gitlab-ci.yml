@@ -1,0 +1,133 @@
+---
+.common:
+  stage: deploy
+  image:
+    # name: registry.gitlab.com/haris-devops/hf-sceptre:4.5.3-01
+    # entrypoint: [""]
+    name: python:latest
+  id_tokens:
+    GITLAB_OIDC_TOKEN:
+      aud: https://gitlab.com
+  script:
+    - echo "Installing dependencies"
+    - pip install --no-cache-dir -r requirements.txt
+    - >
+      aws_sts_output=$(aws sts assume-role-with-web-identity
+      --role-arn ${ROLE_ARN}
+      --role-session-name "GitLabRunner-${CI_PROJECT_ID}-${CI_PIPELINE_ID}"
+      --web-identity-token ${GITLAB_OIDC_TOKEN}
+      --duration-seconds 3600
+      --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'
+      --output text)
+    - export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" $aws_sts_output)
+    - aws sts get-caller-identity
+    - echo "CI_ENVIRONMENT_NAME = ${CI_ENVIRONMENT_NAME}"
+    - echo "Running deployment script"
+    - >
+      ./deploy-cfn-nodocker.sh
+      -f "${VARS_FILE}"
+      -n "${DEPLOY_ACTION}"
+      -d false
+      -i "${DEPLOY_ITEM}"
+
+stages:
+  - test
+  - staging
+  - prod
+  - destroy
+  - release
+
+deploy-staging:
+  extends: .common
+  stage: staging
+  # environment:
+  #   name: faoacct
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+  variables:
+    DEPLOY_ACTION: deploy
+    DEPLOY_ITEM: demo01b
+    VARS_FILE: staging-vars.yaml
+    ROLE_ARN: $STAGING_ACCOUNT_ROLE_ARN
+
+deploy-production:
+  extends: .common
+  stage: prod
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+  variables:
+    DEPLOY_ACTION: deploy
+    DEPLOY_ITEM: demo01b
+    VARS_FILE: prod-vars.yaml
+    ROLE_ARN: $PROD_ACCOUNT_ROLE_ARN
+
+destroy-staging:
+  extends: .common
+  stage: destroy
+  when: manual
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+  variables:
+    DEPLOY_ACTION: destroy
+    DEPLOY_ITEM: demo01b
+    VARS_FILE: staging-vars.yaml
+    ROLE_ARN: $STAGING_ACCOUNT_ROLE_ARN
+
+destroy-production:
+  extends: .common
+  stage: destroy
+  when: manual
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+  variables:
+    DEPLOY_ACTION: destroy
+    DEPLOY_ITEM: demo01b
+    VARS_FILE: prod-vars.yaml
+    ROLE_ARN: $PROD_ACCOUNT_ROLE_ARN
+
+linting:
+  stage: test
+  image:
+    name: node:20.20.2-trixie
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
+      when: always
+    - when: never
+  before_script:
+    - apt-get update && apt-get install -y --no-install-recommends git ca-certificates patch
+    - apt install -y --no-install-recommends python3-pip
+    - apt install -y shellcheck
+  script:
+    - PATCH_FILE=$(mktemp -u).diff
+    - mkdir -p tmp/$CI_PROJECT_NAME
+    - cd tmp/$CI_PROJECT_NAME || exit 1
+    - git config --global --add user.name "GitLab CI"
+    - git config --global --add user.email "noreply@example.com"
+    - echo "git clone --branch $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME --no-single-branch $CI_REPOSITORY_URL ."
+    - git clone --branch "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" --no-single-branch "$CI_REPOSITORY_URL" .
+    - git checkout "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+    - git diff "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME".."$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"  | tee "${PATCH_FILE}"
+    - git checkout -b test/lint
+    - patch -p1 < "${PATCH_FILE}"
+    - rm -f "${PATCH_FILE}"
+    - chmod +x .husky/pre-commit
+    - yarn install
+    - git add .
+    - yarn git:precommit
+
+release:
+  image: node:22.22-slim
+  stage: release
+  before_script:
+    - apt-get update && apt-get install -y --no-install-recommends git-core ca-certificates
+    - npm install -g semantic-release @semantic-release/gitlab
+  script:
+    - semantic-release
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: always
+    - when: never

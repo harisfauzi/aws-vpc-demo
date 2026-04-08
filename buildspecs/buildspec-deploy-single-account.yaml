@@ -1,0 +1,36 @@
+---
+version: 0.2
+
+env:
+  shell: bash
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.x
+    on-failure: ABORT
+    commands:
+      - echo "Installing sceptre and related tools"
+      - pip install -r requirements.txt
+
+  build:
+    on-failure: ABORT
+    commands:
+      - echo "REPO_LOCATION_VARIABLE = ${REPO_LOCATION_VARIABLE}"
+      - REPO_LOCATION=${!REPO_LOCATION_VARIABLE}
+      - echo "REPO_LOCATION ${REPO_LOCATION}"
+      - cd "${REPO_LOCATION}"
+      - echo "TARGET_ACCOUNT = ${TARGET_ACCOUNT}"
+      - echo "CONFIG_ITEM = ${CONFIG_ITEM}"
+      - echo "ACTION = ${ACTION}"
+      - git config --global --add safe.directory .
+      - >
+        ./deploy-cfn-nodocker.sh
+        --account "${TARGET_ACCOUNT}"
+        --role-to-assume "${ROLE_TO_ASSUME}"
+        --var-file "${TARGET_ACCOUNT}.yaml"
+        --action "${ACTION}"
+        --dry-run false
+        --item "${CONFIG_ITEM}"
+    finally:
+      - echo "End of build phase"

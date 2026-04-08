@@ -1,0 +1,71 @@
+---
+version: 0.2
+
+env:
+  shell: bash
+  # Some environment variables are defined via the CodeBuild Project settings.
+  # No need to redefine here.
+  # Required environment variables:
+  # - SOURCE_REFERENCE
+  # - DESTINATION_REFERENCE
+  # - PULL_REQUEST_ID
+  # - REVISION_ID
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.x
+      nodejs: 20.x
+    on-failure: ABORT
+    commands:
+      - echo "Creating virtualenv environment"
+      - virtualenv .venv
+      - echo "Activating virtualenv environment"
+      - source .venv/bin/activate
+      - echo "Installing pre-commit"
+      - pip install pre-commit
+      - node --version
+      - npm --version
+      - echo "Installing nodejs tools"
+      - npm install -g yarn
+      - yarn install
+      - wget -q https://github.com/koalaman/shellcheck/releases/download/stable/shellcheck-stable.linux.x86_64.tar.xz
+      - xzdec shellcheck-stable.linux.x86_64.tar.xz | tar xfv -
+      - mv shellcheck-stable/shellcheck /usr/local/bin
+      - chmod +x /usr/local/bin/shellcheck
+      - rm -rf shellcheck-stable/ shellcheck-stable.linux.x86_64.tar.xz
+
+  build:
+    on-failure: ABORT
+    commands:
+      - git config --global --add user.name "CodeCheck Pipeline"
+      - git config --global --add user.email "noreply@example.com"
+      - echo "SOURCE_REFERENCE = ${SOURCE_REFERENCE}"
+      - echo "DESTINATION_REFERENCE = ${DESTINATION_REFERENCE}"
+      - SOURCE_BRANCH_NAME=$(echo "${SOURCE_REFERENCE}" | tail -c +12)
+      - DESTINATION_BRANCH_NAME=$(echo "${DESTINATION_REFERENCE}" | tail -c +12)
+      - git checkout ${SOURCE_BRANCH_NAME}
+      - git checkout ${DESTINATION_BRANCH_NAME}
+      - PATCH_FILE=$(mktemp --suffix .diff)
+      - git diff "${DESTINATION_BRANCH_NAME}".."${SOURCE_BRANCH_NAME}" | tee "${PATCH_FILE}"
+      - git checkout -b test/lint
+      - patch -p1 < "${PATCH_FILE}"
+      - git add .
+      - echo "PULL_REQUEST_ID = ${PULL_REQUEST_ID}"
+      - echo "REVISION_ID = ${REVISION_ID}"
+      - echo "Run yarn git:precommit"
+      - yarn git:precommit
+
+      # At the end, this is how we approve the PR
+      - >
+        aws codecommit update-pull-request-approval-state
+        --pull-request-id "${PULL_REQUEST_ID}"
+        --revision-id "${REVISION_ID}"
+        --approval-state APPROVE
+
+    finally:
+      - echo "End of build phase"
+
+cache:
+  paths:
+    - node_modules/**/*
