@@ -5,9 +5,8 @@ template:
 sceptre_user_data:
   project_code: "{{stack_group_config.project_code}}"
   source_repo_url: "{{source_repo_url}}"
-  source_repo_branch: !environment_variable SOURCE_REPO_BRANCH
   internet_gateways:
     - name: InternetGateway
-      vpc_id: !stack_output {{pwd}}/ec2-vpc.yaml::VPC
+      vpc_id: !stack_output "{{pwd}}/ec2-vpc.yaml::VPC"
       tags:
         Name: "{{part}}"

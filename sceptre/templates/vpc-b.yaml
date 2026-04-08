@@ -5,7 +5,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 Parameters:
   VpcCidrBlock:
     Type: String
-    Default: '10.253.0.0/20'
+    Default: "10.253.0.0/20"
 
 Resources:
   VPC:
@@ -31,8 +31,8 @@ Resources:
 
   RTPublicDefaultRouteIPv4:
     Type: AWS::EC2::Route
-    Properties: 
-      DestinationCidrBlock: '0.0.0.0/0'
+    Properties:
+      DestinationCidrBlock: "0.0.0.0/0"
       GatewayId:
         Ref: InternetGateway
       RouteTableId:
@@ -111,7 +111,7 @@ Resources:
 
   SubnetPublicARTAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties: 
+    Properties:
       RouteTableId:
         Ref: RouteTablePublic
       SubnetId:
@@ -119,7 +119,7 @@ Resources:
 
   SubnetPublicANACLAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
-    Properties: 
+    Properties:
       NetworkAclId:
         Ref: NetworkAclPublicSubnet
       SubnetId:
@@ -147,7 +147,7 @@ Resources:
 
   SubnetPublicBRTAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties: 
+    Properties:
       RouteTableId:
         Ref: RouteTablePublic
       SubnetId:
@@ -155,7 +155,7 @@ Resources:
 
   SubnetPublicBNACLAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
-    Properties: 
+    Properties:
       NetworkAclId:
         Ref: NetworkAclPublicSubnet
       SubnetId:
@@ -182,7 +182,7 @@ Resources:
 
   SubnetPrivateARTAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties: 
+    Properties:
       RouteTableId:
         Ref: RouteTablePrivateA
       SubnetId:
@@ -190,7 +190,7 @@ Resources:
 
   SubnetPrivateANACLAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
-    Properties: 
+    Properties:
       NetworkAclId:
         Ref: NetworkAclPrivateSubnet
       SubnetId:
@@ -217,7 +217,7 @@ Resources:
 
   SubnetPrivateBRTAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties: 
+    Properties:
       RouteTableId:
         Ref: RouteTablePrivateB
       SubnetId:
@@ -225,7 +225,7 @@ Resources:
 
   SubnetPrivateBNACLAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
-    Properties: 
+    Properties:
       NetworkAclId:
         Ref: NetworkAclPrivateSubnet
       SubnetId:

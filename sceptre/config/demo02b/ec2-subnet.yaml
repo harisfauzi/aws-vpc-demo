@@ -5,35 +5,46 @@ template:
 sceptre_user_data:
   project_code: "{{stack_group_config.project_code}}"
   source_repo_url: "{{source_repo_url}}"
-  source_repo_branch: !environment_variable SOURCE_REPO_BRANCH
   subnets:
     - name: SubnetPublicA
       cidr_block: "!Select [0, !Cidr [!ImportValue vpcdemo-{{pwd}}-ec2-vpc-VPC-CidrBlock,4,8]]"
       availability_zone: "{{stack_group_config.region}}a"
-      tags: {{subnet_tags['public_a'][var.environment]}}
-      vpc_id: !stack_output {{pwd}}/ec2-vpc.yaml::VPC
+      tags:
+        # {%- for key, value in subnet_tags['public_a'][var.environment].items() %}
+        "{{key}}": "{{value}}"
+        # {%- endfor %}
+      vpc_id: !stack_output "{{pwd}}/ec2-vpc.yaml::VPC"
       map_public_ip_on_launch: True
-      network_acl_id: !stack_output {{pwd}}/ec2-networkacl.yaml::NetworkAclPublicSubnet
-      route_table_id: !stack_output {{pwd}}/ec2-route.yaml::RouteTablePublic
+      network_acl_id: !stack_output "{{pwd}}/ec2-networkacl.yaml::NetworkAclPublicSubnet"
+      route_table_id: !stack_output "{{pwd}}/ec2-route.yaml::RouteTablePublic"
     - name: SubnetPublicB
       cidr_block: "!Select [1, !Cidr [!ImportValue vpcdemo-{{pwd}}-ec2-vpc-VPC-CidrBlock,4,8]]"
       availability_zone: "{{stack_group_config.region}}b"
-      tags: {{subnet_tags['public_b'][var.environment]}}
-      vpc_id: !stack_output {{pwd}}/ec2-vpc.yaml::VPC
+      tags:
+        # {%- for key, value in subnet_tags['public_b'][var.environment].items() %}
+        "{{key}}": "{{value}}"
+        # {%- endfor %}
+      vpc_id: !stack_output "{{pwd}}/ec2-vpc.yaml::VPC"
       map_public_ip_on_launch: True
-      network_acl_id: !stack_output {{pwd}}/ec2-networkacl.yaml::NetworkAclPublicSubnet
-      route_table_id: !stack_output {{pwd}}/ec2-route.yaml::RouteTablePublic
+      network_acl_id: !stack_output "{{pwd}}/ec2-networkacl.yaml::NetworkAclPublicSubnet"
+      route_table_id: !stack_output "{{pwd}}/ec2-route.yaml::RouteTablePublic"
     - name: SubnetPrivateA
       cidr_block: "!Select [2, !Cidr [!ImportValue vpcdemo-{{pwd}}-ec2-vpc-VPC-CidrBlock,4,8]]"
       availability_zone: "{{stack_group_config.region}}a"
-      tags: {{subnet_tags['private_a'][var.environment]}}
-      vpc_id: !stack_output {{pwd}}/ec2-vpc.yaml::VPC
-      network_acl_id: !stack_output {{pwd}}/ec2-networkacl.yaml::NetworkAclPrivateSubnet
-      route_table_id: !stack_output {{pwd}}/ec2-route.yaml::RouteTablePrivateA
+      tags:
+        # {%- for key, value in subnet_tags['private_a'][var.environment].items() %}
+        "{{key}}": "{{value}}"
+        # {%- endfor %}
+      vpc_id: !stack_output "{{pwd}}/ec2-vpc.yaml::VPC"
+      network_acl_id: !stack_output "{{pwd}}/ec2-networkacl.yaml::NetworkAclPrivateSubnet"
+      route_table_id: !stack_output "{{pwd}}/ec2-route.yaml::RouteTablePrivateA"
     - name: SubnetPrivateB
       cidr_block: "!Select [3, !Cidr [!ImportValue vpcdemo-{{pwd}}-ec2-vpc-VPC-CidrBlock,4,8]]"
       availability_zone: "{{stack_group_config.region}}b"
-      tags: {{subnet_tags['private_b'][var.environment]}}
-      vpc_id: !stack_output {{pwd}}/ec2-vpc.yaml::VPC
-      network_acl_id: !stack_output {{pwd}}/ec2-networkacl.yaml::NetworkAclPrivateSubnet
-      route_table_id: !stack_output {{pwd}}/ec2-route.yaml::RouteTablePrivateB
+      tags:
+        # {%- for key, value in subnet_tags['private_b'][var.environment].items() %}
+        "{{key}}": "{{value}}"
+        # {%- endfor %}
+      vpc_id: !stack_output "{{pwd}}/ec2-vpc.yaml::VPC"
+      network_acl_id: !stack_output "{{pwd}}/ec2-networkacl.yaml::NetworkAclPrivateSubnet"
+      route_table_id: !stack_output "{{pwd}}/ec2-route.yaml::RouteTablePrivateB"
