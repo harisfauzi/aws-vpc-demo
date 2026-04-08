@@ -1,0 +1,56 @@
+---
+name: linstaged check
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  run-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+          # ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: Create new branch
+        run: |
+          git config --global --add user.name "GitHub Actions"
+          git config --global --add user.email "noreply@example.com"
+          PATCH_FILE=$(mktemp --suffix .diff)
+          echo "git checkout ${GITHUB_BASE_REF}"
+          git checkout "${GITHUB_BASE_REF}"
+          echo "git diff ${GITHUB_BASE_REF}..${GITHUB_HEAD_REF} | tee ${PATCH_FILE}"
+          git diff "${GITHUB_BASE_REF}".."${GITHUB_HEAD_REF}" | tee "${PATCH_FILE}"
+          git checkout -b test/lint
+          patch -p1 < "${PATCH_FILE}"
+          rm -f "${PATCH_FILE}"
+
+      - name: Setup nodejs
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - name: Install python
+        uses: actions/setup-python@v6
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Cache nodejs
+        uses: actions/cache@v5
+        id: cache-node_modules
+        with:
+          path: node_modules
+          key: ubuntu-latest-22-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ubuntu-latest-22-${{ hashFiles('**/package-lock.json') }}
+      - if: steps.cache-node_modules.outputs.cache-hit != 'true'
+        run: yarn install
+      - name: Run yarn prepare
+        run: yarn prepare
+      - name: Trigger pre-commit
+        run: |
+          chmod +x .husky/pre-commit
+          git add .
+          git commit -m "Trigger pre-commit"

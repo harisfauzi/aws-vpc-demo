@@ -1,0 +1,41 @@
+---
+name: Manual staging decommission action
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: Log level
+        required: true
+        default: warning
+        type: choice
+        options:
+          - info
+          - warning
+          - debug
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  destroy-staging:
+    environment: STAGING
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: us-west-2
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v6
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.STAGING_ACCOUNT_ROLE }}
+          role-session-name: gha
+          unset-current-credentials: true
+      - name: Deployment
+        run: |
+          echo "Install dependencies"
+          pip install -r requirements.txt
+          echo "Destroying staging environment"
+          ./deploy-cfn-nodocker.sh -f staging-vars.yaml -e aws_region=${AWS_REGION} -n destroy -d false -i demo01b
