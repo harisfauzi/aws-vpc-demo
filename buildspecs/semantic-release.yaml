@@ -1,0 +1,33 @@
+---
+version: 0.2
+
+env:
+  shell: bash
+  # Some environment variables are defined via the CodeBuild Project settings.
+  # No need to redefine here.
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22.x
+    on-failure: ABORT
+    commands:
+      - node --version
+      - npm --version
+      - echo "Installing nodejs tools"
+      - yarn add --dev semantic-release
+      - yarn install
+      - git config --global credential.helper "!aws codecommit credential-helper $@"
+      - git config --global credential.UseHttpPath true
+
+  build:
+    on-failure: ABORT
+    commands:
+      - npx semantic-release --ci false
+      - git push origin --tag
+
+    finally:
+      - echo "End of build phase"
+cache:
+  paths:
+    - node_modules/**/*
